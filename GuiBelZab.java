@@ -323,9 +323,9 @@ public class GuiBelZab extends Frame implements ActionListener, FocusListener {
 
     private static int cells_number = 600;
     private static int generations = 600;
-    private static double alpha = 1;
-    private static double beta = 1;
-    private static double gamma = 1;
+    private static float alpha = 1;
+    private static float beta = 1;
+    private static float gamma = 1;
     private static double scaleImage = 1;
     private static int cfrontier = 0;
 
@@ -335,13 +335,13 @@ public class GuiBelZab extends Frame implements ActionListener, FocusListener {
         if(e.getSource() == nav_bar.getMenu(0).getItem(0)) {
 //      frame.remove(window);
             value = 2;
-            MainCanvas.task.initializer(cells_number, generations, cfrontier , initializer_mode);
+            MainCanvas.task.initializer(cells_number, generations, cfrontier , alpha, beta, gamma);
             canvas_template.updateCanvas();
         }
 
         if(e.getSource() == nav_bar.getMenu(0).getItem(1)) {
             value = 3;
-            MainCanvas.task.initializer(cells_number, generations, cfrontier , initializer_mode);
+            MainCanvas.task.initializer(cells_number, generations, cfrontier , alpha, beta, gamma);
             canvas_template.updateCanvas();
         }
 
@@ -380,7 +380,7 @@ public class GuiBelZab extends Frame implements ActionListener, FocusListener {
 
             MainCanvas.task = new CellularAutomata2D();
             MainCanvas.task.plug(canvas_template);
-            MainCanvas.task.initializer(cells_number, generations, cfrontier , initializer_mode);
+            MainCanvas.task.initializer(cells_number, generations, cfrontier , alpha, beta, gamma);
             MainCanvas.setDimensions(cells_number, cells_number);
             if (scaleImage >=1){
                 MainCanvas.setScaleRate(scaleImage);
@@ -487,17 +487,17 @@ public class GuiBelZab extends Frame implements ActionListener, FocusListener {
 
         if(e.getSource() == input_variables_textfields[2]) {
             nump = input_variables_textfields[2].getText();
-             alpha = Double.parseDouble(nump);
+             alpha = Float.parseFloat(nump);
         }
 
         if(e.getSource() == input_variables_textfields[3]) {
             nump = input_variables_textfields[3].getText();
-            beta = Double.parseDouble(nump);
+            beta = Float.parseFloat(nump);
         }
 
         if(e.getSource() == input_variables_textfields[4]) {
             nump = input_variables_textfields[4].getText();
-            gamma = Double.parseDouble(nump);
+            gamma = Float.parseFloat(nump);
         }
 
         if(e.getSource() == input_variables_textfields[5]) {
