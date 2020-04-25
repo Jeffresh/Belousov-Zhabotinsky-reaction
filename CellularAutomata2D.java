@@ -256,19 +256,13 @@ public class CellularAutomata2D implements Runnable
         return population;
     }
 
-    private int computeVonNeumannNeighborhood(int i, int j) {
-        int cellsAlive = 0 ;
+    private float computeVonNeumannNeighborhood(int i, int j, float[][][] matrix) {
+        float cellsAlive = 0 ;
 
-        if(cfrontier==0) {
-            for(int x = i-1; x<=i+1; x++) {
-                for(int y = j-1; y<=j+1; y++) {
-                    if((x >= 0 && x < width) && (y >= 0 && y < width) && (( x != i) || (y != j)) && (actualGen[x][y] == 1))
-                        cellsAlive ++;
-                }
+        for(int x = i-1; x<=i+1; x++) {
+            for(int y = j-1; y<=j+1; y++) {
+                cellsAlive += matrix[(x+ width )% width ][(y+ height )% height ][ p ];
             }
-        }
-        else{
-            //TODO: implement cilindrical frontier
         }
 
         return cellsAlive;
