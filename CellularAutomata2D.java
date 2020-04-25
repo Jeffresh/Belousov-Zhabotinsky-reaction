@@ -35,7 +35,6 @@ public class CellularAutomata2D implements Runnable
     private float c_a;
     private float c_b;
     private float c_c;
-    private float value;
 
     private static float alpha,beta,gamma;
     public static int p ,q;
@@ -51,7 +50,6 @@ public class CellularAutomata2D implements Runnable
     private static int cfrontier = 0;
     private static int cells_number;
     public static int generations;
-    private static Random randomGenerator;
 
     private int task_number;
     private static int total_tasks;
@@ -176,7 +174,6 @@ public class CellularAutomata2D implements Runnable
 
 
     public void initializer (int cells_number, int generations, int cfrontier, float alpha, float beta, float gamma) {
-        randomGenerator = new Random();
 
         width = cells_number;
         height = cells_number;
@@ -206,7 +203,7 @@ public class CellularAutomata2D implements Runnable
 
         p = 0;
         q = 1;
-        value = 0;
+
         CellularAutomata2D.a = new float [width][height][2];
         CellularAutomata2D.b = new float [width][height][2];
         CellularAutomata2D.c = new float [width][height][2];
@@ -257,6 +254,17 @@ public class CellularAutomata2D implements Runnable
         return cellsAlive;
     }
 
+    private float transitionFunction(float a, float b , float c, float factor1, float factor2) {
+        float value = a + a * ( factor1 * b - factor2 * c );
+
+        if(value < 0)
+            value=  0;
+        if(value > 1)
+            value = 1;
+
+        return value;
+    }
+
     public  LinkedList<Double>[] nextGen(int actual_gen) {
 
         local_population_counter = new int[states_number];
@@ -276,33 +284,10 @@ public class CellularAutomata2D implements Runnable
                 c_a = computeVonNeumannNeighborhood(x, y, a)/(float)9.0;
                 c_b = computeVonNeumannNeighborhood(x, y, b)/(float)9.0;
                 c_c = computeVonNeumannNeighborhood(x, y, c)/(float)9.0;
-                
 
-                value = c_a + c_a * ( alpha *c_b - gamma*c_c );
-
-                if(value < 0)
-                    value=  0;
-                if(value > 1)
-                    value = 1;
-
-                a[x ][ y ][ q] = value ;
-                value = c_b + c_b * ( beta* c_c - alpha* c_a );
-
-                if(value < 0)
-                    value=  0;
-                if(value > 1)
-                    value = 1;
-
-                b[x ][ y ][ q] = value;
-
-                value =c_c + c_c * ( gamma* c_a -  beta* c_b );
-
-                if(value < 0)
-                    value=  0;
-                if(value > 1)
-                    value = 1;
-
-                c[x ][ y ][ q] = value ;
+                a[x][y][q] = transitionFunction(c_a, c_b, c_c, alpha, gamma );
+                b[x][y][q] = transitionFunction(c_b, c_c, c_a, beta, alpha );
+                c[x][y][q] = transitionFunction(c_c, c_a, c_b, gamma, beta );
 
             }
 
