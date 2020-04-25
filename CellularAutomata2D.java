@@ -266,25 +266,17 @@ public class CellularAutomata2D implements Runnable
         }
 
         for(int x = 0; x< width; x++)
-            for (int y = 0; y < width; y++) {
+            for (int y = in; y < fn; y++) {
                 if(abort)
                     break;
                 c_a = 0;
                 c_b = 0;
                 c_c = 0;
 
-                for (int i = x - 1; i <= x +1; i ++)
-                {
-                    for (int j = y - 1; j <= y +1; j ++)
-                    {
-                        c_a += a [( i+ width )% width ][( j+ height )% height ][ p ];
-                        c_b += b [( i+ width )% width ][( j+ height )% height ][ p ];
-                        c_c += c [( i+ width )% width ][( j+ height )% height ][ p ];
-                    }
-                }
-                c_a /= 9.0;
-                c_b /= 9.0;
-                c_c /= 9.0;
+                c_a = computeVonNeumannNeighborhood(x, y, a)/(float)9.0;
+                c_b = computeVonNeumannNeighborhood(x, y, b)/(float)9.0;
+                c_c = computeVonNeumannNeighborhood(x, y, c)/(float)9.0;
+                
 
                 value = c_a + c_a * ( alpha *c_b - gamma*c_c );
 
