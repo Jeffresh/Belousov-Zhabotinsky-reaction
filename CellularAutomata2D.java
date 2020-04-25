@@ -166,14 +166,12 @@ public class CellularAutomata2D implements Runnable
     }
 
     private static void randomInitializer() {
-        int nCells = (height*height)/2;
-        for(int i=0; i < nCells; i++) {
-            actualGen[randomGenerator.nextInt(height)][randomGenerator.nextInt(height)]=1;
-        }
-
-        initialPopulation[0]= height*height - nCells;
-        initialPopulation[1]= nCells;
-
+        for(int x = 0 ; x < width; x++)
+            for(int y = 0; y < height; y++) {
+                a[x ][ y ][ p] = (float)Math.random ();
+                b[x ][ y ][ p] = (float)Math.random ();
+                c[x ][ y ][ p] = (float)Math.random ();
+            }
     }
 
 
