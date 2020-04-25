@@ -21,8 +21,6 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 public class CellularAutomata2D implements Runnable
 {
 
-    private static int[][] matrix;
-    private static  int[][] actualGen, nextGen;
     private static int[] initialPopulation;
     public static AtomicIntegerArray population_counter;
     private int [] local_population_counter;
@@ -51,10 +49,8 @@ public class CellularAutomata2D implements Runnable
 
     public static int states_number = 2;
     private static int cfrontier = 0;
-    private static int seed;
     private static int cells_number;
     public static int generations;
-    private static String initializerMode;
     private static Random randomGenerator;
 
     private int task_number;
@@ -187,7 +183,6 @@ public class CellularAutomata2D implements Runnable
         width = cells_number;
         height = cells_number;
 
-
         population_counter = new AtomicIntegerArray(states_number);
 
         CellularAutomata2D.cells_number = cells_number;
@@ -235,18 +230,16 @@ public class CellularAutomata2D implements Runnable
 
     public static int getIndex() {
         return p;
-}
+    }
 
 
 
     public static void changeRefs() {
-        if( p == 0)
-        {
+        if( p == 0) {
             p = 1;
             q = 0;
         }
-        else
-        {
+        else {
             p = 0;
             q = 1;
         }
