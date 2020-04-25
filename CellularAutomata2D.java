@@ -204,25 +204,14 @@ public class CellularAutomata2D implements Runnable
         if(CellularAutomata2D.population_chart_ref != null)
             CellularAutomata2D.population_chart_ref.plot();
 
-        CellularAutomata2D.a = new float [width][height][2];
-        CellularAutomata2D.b = new float [width][height][2];
-        CellularAutomata2D.c = new float [width][height][2];
         p = 0;
         q = 1;
         value = 0;
+        CellularAutomata2D.a = new float [width][height][2];
+        CellularAutomata2D.b = new float [width][height][2];
+        CellularAutomata2D.c = new float [width][height][2];
+        CellularAutomata2D.randomInitializer();
 
-        long m = 1000;
-
-
-        for(int x = 0 ; x < width; x++)
-            for(int y = 0; y < height; y++)
-            {
-                a[x ][ y ][ p] = (float)Math.random ();
-                b[x ][ y ][ p] = (float)Math.random ();
-                c[x ][ y ][ p] = (float)Math.random ();
-
-
-            }
 
     }
 
