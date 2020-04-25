@@ -274,24 +274,6 @@ public class CellularAutomata2D implements Runnable
         return cellsAlive;
     }
 
-    private int transitionFunction(int cellsAlive, int i, int j) {
-        int transitionFunctionValue;
-
-        if(cellsAlive <2 || cellsAlive >3)
-            transitionFunctionValue = 0;
-        else if( cellsAlive == 2)
-            transitionFunctionValue = actualGen[i][j];
-        else
-            transitionFunctionValue = 1;
-
-        return transitionFunctionValue;
-    }
-
-    public int getCellValue(int i, int j){
-        int cellsAlive = computeVonNeumannNeighborhood(i,j);
-        return transitionFunction(cellsAlive, i, j);
-    }
-
     public  LinkedList<Double>[] nextGen(int actual_gen) {
 
         local_population_counter = new int[states_number];
