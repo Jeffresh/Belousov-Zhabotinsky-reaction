@@ -15,7 +15,7 @@ class MainCanvas extends JPanel {
     private static final long serialVersionUID = 1L;
 
     /** Object of the class that Needs Visualization (ONV)  */
-    public static CellularAutomata2D task;
+    public static parallelBelZab task;
     public static BufferedImage image_ref;
     public static double scale_rate =1;
     public static int xMax;
@@ -48,7 +48,7 @@ class MainCanvas extends JPanel {
 
         this.setOpaque(true);
 
-        task = new CellularAutomata2D();
+        task = new parallelBelZab();
         task.plug(this);
         xMax = x_max;
         yMax = y_max;
@@ -73,7 +73,7 @@ class MainCanvas extends JPanel {
         Color color;
 
         float[][][] a = task.getData();
-        int index = CellularAutomata2D.getIndex();
+        int index = parallelBelZab.getIndex();
 
         for(int x = 0; x < yMax; x++)
         {

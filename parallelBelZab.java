@@ -1,351 +1,294 @@
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.lang.*;
-import java.lang.Math.*;
-import javax.swing.JPanel;
+import java.util.LinkedList;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
+/**
+     * ClassNV.java
+     * Purpose: generic Class that you can modify and adapt easily for any application
+     * that need data visualization.
+     * @author: Jeffrey Pallarés Núñez.
+     * @version: 1.0 23/07/19
+     */
 
 
 
 public class parallelBelZab implements Runnable
 {
 
-	public static float [][][] a;
-	public static float [][][] b;
-	public static float [][][] c;
+    private static int[] initialPopulation;
+    public static AtomicIntegerArray population_counter;
+    private int [] local_population_counter;
+    private static LinkedList<Double>[] population;
+    public static MainCanvas canvasTemplateRef;
+    public static AnalyticsMultiChart population_chart_ref;
 
-	private float c_a;
-	private float c_b;
-	private float c_c;
-	private float value;
+    public static float [][][] a;
+    public static float [][][] b;
+    public static float [][][] c;
 
-	private static float alfa,beta,gamma;
-	public static int p ,q; 
+    private float c_a;
+    private float c_b;
+    private float c_c;
 
-	private static int ncels_;
-	private static int width, height;
-
-	private static ThreadPoolExecutor miPool;
-	private static CyclicBarrier barrera = null;
-	private static boolean parar =false;
-
-	private static int tamPool;
-
-	private static Gui.CanvasBelZab canvas;
-	public static JPanel grafica_ref;
-
-	public	void run()
-	{
-				
-		// System.out.println("Entro en el run");
+    private static float alpha,beta,gamma;
+    public static int p ,q;
 
 
-		 for(int i = 0; i<gens; i++)
-		 {
-		 	
-	        if(parar)
-		 		break;
+    public float[][][] getData() { return a; }
+    public void plug(MainCanvas ref) { canvasTemplateRef = ref; }
+    public void plugPopulationChart(AnalyticsMultiChart ref) { population_chart_ref = ref;}
 
-		 	
+    private static int width, height;
 
-			next_gen();
-			try 
-			{
-				int l = barrera.await();
-	   			if(barrera.getParties() == 0)
-	                barrera.reset();
-	        }catch(Exception e){}
-	       	
-	       	// System.out.println("Salgo de el run");
-       		if(tarea==1)
-	    		{
-	    			canvas.paintImmediately(0,0,1000,1000);
-	    			// grafica_ref.paintImmediately(0,0,100,100);
-	    			if( p == 0)
-    				{
-    					p = 1; 
-    					q = 0;
-    				}
-    				else
-    				{
-    					p = 0;
-    					q = 1;
-    				}
-    			}
-    		try 
-			{
-				int l = barrera.await();
-				
-	   			if(barrera.getParties() == 0)
-	                barrera.reset();
-	        }catch(Exception e){}
+    public static int states_number = 2;
+    private static int cfrontier = 0;
+    private static int cells_number;
+    public static int generations;
 
-
-
-	        
-	     }
-
-
-
-
-
-	}
-
-
-	private int tarea;
-    private int in,fn;
-    private static int numtareas;
+    private int task_number;
+    private static int total_tasks;
+    private static CyclicBarrier barrier = null;
+    private int in;
+    private int fn;
+    public static Boolean abort = false;
     private static int gens;
+    private static int size_pool;
+    private static ThreadPoolExecutor myPool;
 
 
-    public void enchufa(Gui.CanvasBelZab c)
-    {
-    	canvas=c;
+    public void run() {
+
+        for (int i = 0; i < generations-1 ; i++) {
+            if(abort)
+                break;
+            nextGen(i);
+
+            try
+            {
+                int l = barrier.await();
+                for (int j = 0; j < states_number; j++) {
+                    population_counter.getAndAdd(j,this.local_population_counter[j]);
+                }
+
+                if(barrier.getParties() == 0)
+                    barrier.reset();
+
+                l = barrier.await();
+
+
+                if(this.task_number==1) {
+                    canvasTemplateRef.revalidate();
+                    canvasTemplateRef.repaint();
+                    Thread.sleep(0,10);
+
+                    for (int j = 0; j < states_number; j++) {
+                        population[j].add((double)population_counter.get(j));
+                    }
+                    population_counter = new AtomicIntegerArray(states_number);
+
+                    if(parallelBelZab.population_chart_ref != null)
+                        parallelBelZab.population_chart_ref.plot();
+                    changeRefs();
+                }
+
+                if(barrier.getParties() == 0)
+                    barrier.reset();
+
+                l = barrier.await();
+
+
+                if(barrier.getParties() == 0)
+                    barrier.reset();
+            }catch(Exception e){}
+        }
+
     }
 
+    public int[] getInitialPopulation(){
+        return initialPopulation;
+    }
 
-	public parallelBelZab(int i)
-	{
-		tarea = i;
+    public parallelBelZab() {}
 
-        int paso = ncels_ /numtareas;
+    public parallelBelZab(int i) {
+        task_number = i;
+
+        int paso = cells_number /total_tasks;
 
 
-        fn = paso * tarea;
+        fn = paso * task_number;
         in = fn - paso;
 
-        if( numtareas == tarea)
-            fn =ncels_;
+        if( total_tasks == task_number)
+            fn =cells_number;
+    }
 
-        System.out.println(in+" "+fn);
+    public static void next_gen_concurrent(int nt,int g) {
+        gens =g;
 
-	}
+        size_pool =nt;
 
+        barrier = new CyclicBarrier (size_pool);
+        total_tasks = size_pool;
 
-	public void ini_Belzab(int w, int h,float al,float be, float ga, int s)
-	{
-		width = w;
-		height = h ;
+        myPool = new ThreadPoolExecutor(
+                size_pool, size_pool, 60000L,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>());
+        parallelBelZab[] tareas = new parallelBelZab[nt];
 
-		// parar =false;
-
-		a = new float [width][height][2];
-		b = new float [width][height][2];
-		c = new float [width][height][2];
-		p = 0;
-		q = 1;
-		value = 0;
-
-		long m = 1000;
-
-		ncels_ = width;
-
-       	// motor = new randomGenerator();
-
-
-		for(int x = 0 ; x < width; x++)
-			for(int y = 0; y < height; y++)
-			{
-				a[x ][ y ][ p] = (float)Math.random ();
-				b[x ][ y ][ p] = (float)Math.random ();
-				c[x ][ y ][ p] = (float)Math.random ();
-
-
-			}
-
-			alfa =al;
-			beta =be;
-			gamma =ga;
-	}
-
-
-	public parallelBelZab(int w, int h,float al,float be, float ga, int s)
-	{
-
-		width = w;
-		height = h ;
-
-		a = new float [width][height][2];
-		b = new float [width][height][2];
-		c = new float [width][height][2];
-		p = 0;
-		q = 1;
-
-		value =0;
-
-		long m = 1000;
-
-		ncels_ = width;
-
-       	// motor = new randomGenerator();
-
-		for(int x = 0 ; x < width; x++)
-			for(int y = 0; y < height; y++)
-			{
-				a[x ][ y ][ p] = (float)Math.random ();
-				b[x ][ y ][ p] = (float)Math.random ();
-				c[x ][ y ][ p] = (float)Math.random ();
-
-
-			}
-
-			alfa =al;
-			beta =be;
-			gamma =ga;
-
-		for(int x = 0 ; x < width; x++)
-			for(int y = 0; y < height; y++)
-			{
-				// m = motor.moore(m);
-				
-				a[x][y][p]= (float)Math.random();
-				// (float)m/Integer.MAX_VALUE;
-				// m = motor.moore(m);
-
-				b[x][y][p]= (float)Math.random();
-				// (float)m/Integer.MAX_VALUE;
-				// m = motor.moore(m);
-
-				c[x][y][p]= (float)Math.random();
-				// (float)m/Integer.MAX_VALUE;
-
-
-			}
-
-			alfa =al;
-			beta =be;
-			gamma =ga;
-			
-
-	
-	}
-
-
-	public void stop()
-	{
-		miPool.shutdownNow();
-		parar=true;
-	}
-
-	public void start()
-	{
-		parar =false;
-	}
-
-
-	public static void next_gen_concurrent(int nt,int g)
-	{
-		gens =g;
-
-
-		tamPool =nt;
-
-		barrera = new CyclicBarrier (tamPool);
-			numtareas = tamPool;
-
-		miPool = new ThreadPoolExecutor(
-    									tamPool, tamPool, 60000L,
-    									TimeUnit.MILLISECONDS,
-    									new LinkedBlockingQueue<Runnable>());
-		parallelBelZab[] tareas = new  parallelBelZab[nt];
-
-		for(int t = 0; t < nt; t++)
-		{
-			tareas[t] = new parallelBelZab(t+1);
-    		miPool.execute(tareas[t]);
-
-		}
-
-
-		miPool.shutdown();
-		try{
-		miPool.awaitTermination(10, TimeUnit.HOURS);}catch(Exception e){}
-
-
-	}
-
-
-	public void next_gen()
-	{
-
-
-
-	 value = 0;
-		for (int x = 0; x < width ; x ++) 
-		{
-	    	for (int y = 0; y < height ; y ++)
-	    	{
-				c_a = 0;
-				c_b = 0;
-				c_c = 0;
-			
-				for (int i = x - 1; i <= x +1; i ++) 
-				{
-		    		for (int j = y - 1; j <= y +1; j ++) 
-		    		{
-						c_a += a [( i+ width )% width ][( j+ height )% height ][ p ];
-						c_b += b [( i+ width )% width ][( j+ height )% height ][ p ];
-						c_c += c [( i+ width )% width ][( j+ height )% height ][ p ];
-		    		}
-				}
-				c_a /= 9.0;
-				c_b /= 9.0;
-				c_c /= 9.0;
-
-				value = c_a + c_a * ( alfa *c_b - gamma*c_c );
-
-				if(value < 0)
-				    value=  0;
-				if(value > 1)
-				    value = 1;
-
-				a[x ][ y ][ q] = value ; 
-				value = c_b + c_b * ( beta* c_c - alfa* c_a );
-
-				if(value < 0)
-				    value=  0;
-				if(value > 1)
-				    value = 1;
-
-				b[x ][ y ][ q] = value;
-
-				value =c_c + c_c * ( gamma* c_a -  beta* c_b );
-
-				if(value < 0)
-				    value=  0;
-				if(value > 1)
-				    value = 1;
-				
-				c[x ][ y ][ q] = value ;
-
-			}
-		}
-
-	
-
-		
-	}
-
-
-
-	public String toString()
-    {
-        String cout= new String();
-        for(int i = 0 ; i < ncels_; i++)
+        for(int t = 0; t < nt; t++)
         {
-            cout +="| ";
+            tareas[t] = new parallelBelZab(t+1);
+            myPool.execute(tareas[t]);
 
-            for (int j = 0; j< ncels_ ; j++ )
-            {
-                  cout+=a[i][j][p];
-                  cout+=" | ";
-                
+        }
+
+        myPool.shutdown();
+        try{
+            myPool.awaitTermination(10, TimeUnit.HOURS);
+        } catch(Exception e){
+            System.out.println(e.toString());
+        }
+
+    }
+
+    public LinkedList<Double>[] getPopulation(){
+        return population;
+    }
+
+    private static void randomInitializer() {
+        for(int x = 0 ; x < width; x++)
+            for(int y = 0; y < height; y++) {
+                a[x ][ y ][ p] = (float)Math.random ();
+                b[x ][ y ][ p] = (float)Math.random ();
+                c[x ][ y ][ p] = (float)Math.random ();
+            }
+    }
+
+
+    public void initializer (int cells_number, int generations, int cfrontier, float alpha, float beta, float gamma) {
+
+        width = cells_number;
+        height = cells_number;
+
+        population_counter = new AtomicIntegerArray(states_number);
+
+        parallelBelZab.cells_number = cells_number;
+        parallelBelZab.generations = generations;
+        parallelBelZab.cfrontier = cfrontier;
+        parallelBelZab.alpha = alpha;
+        parallelBelZab.beta = beta;
+        parallelBelZab.gamma = gamma;
+
+        population = new LinkedList[states_number];
+        initialPopulation = new int[states_number];
+
+
+        for (int i = 0; i < states_number; i++) {
+            population[i] = new LinkedList<Double>();
+        }
+
+        for (int j = 0; j < states_number; j++) {
+            population[j].add((double)initialPopulation[j]);
+        }
+        if(parallelBelZab.population_chart_ref != null)
+            parallelBelZab.population_chart_ref.plot();
+
+        p = 0;
+        q = 1;
+
+        parallelBelZab.a = new float [width][height][2];
+        parallelBelZab.b = new float [width][height][2];
+        parallelBelZab.c = new float [width][height][2];
+        parallelBelZab.randomInitializer();
+
+
+    }
+
+    public static int getIndex() {
+        return p;
+    }
+
+
+
+    public static void changeRefs() {
+        if( p == 0) {
+            p = 1;
+            q = 0;
+        }
+        else {
+            p = 0;
+            q = 1;
+        }
+
+    }
+
+    public static void stop() {
+        abort = true;
+    }
+
+    public static LinkedList<Double>[]caComputation(int nGen) {
+        abort = false;
+        generations = nGen;
+        next_gen_concurrent(8,nGen);
+
+        return population;
+    }
+
+    private float computeVonNeumannNeighborhood(int i, int j, float[][][] matrix) {
+        float cellsAlive = 0 ;
+
+        for(int x = i-1; x<=i+1; x++) {
+            for(int y = j-1; y<=j+1; y++) {
+                cellsAlive += matrix[(x+ width )% width ][(y+ height )% height ][ p ];
+            }
+        }
+
+        return cellsAlive;
+    }
+
+    private float transitionFunction(float a, float b , float c, float factor1, float factor2) {
+        float value = a + a * ( factor1 * b - factor2 * c );
+
+        if(value < 0)
+            value=  0;
+        if(value > 1)
+            value = 1;
+
+        return value;
+    }
+
+    public  LinkedList<Double>[] nextGen(int actual_gen) {
+
+        local_population_counter = new int[states_number];
+
+        for (int i = 0; i < states_number; i++) {
+            this.local_population_counter[i]=0;
+        }
+
+        for(int x = 0; x< width; x++)
+            for (int y = in; y < fn; y++) {
+                if(abort)
+                    break;
+                c_a = 0;
+                c_b = 0;
+                c_c = 0;
+
+                c_a = computeVonNeumannNeighborhood(x, y, a)/(float)9.0;
+                c_b = computeVonNeumannNeighborhood(x, y, b)/(float)9.0;
+                c_c = computeVonNeumannNeighborhood(x, y, c)/(float)9.0;
+
+                a[x][y][q] = transitionFunction(c_a, c_b, c_c, alpha, gamma );
+                b[x][y][q] = transitionFunction(c_b, c_c, c_a, beta, alpha );
+                c[x][y][q] = transitionFunction(c_c, c_a, c_b, gamma, beta );
+
             }
 
-            cout+='\n';
-          
-        }
-        return cout;
+        return population;
     }
+
 }

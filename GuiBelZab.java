@@ -378,7 +378,7 @@ public class GuiBelZab extends Frame implements ActionListener, FocusListener {
         if(e.getSource() == gui_buttons.get(buttons_names[0])) {
 
 
-            MainCanvas.task = new CellularAutomata2D();
+            MainCanvas.task = new parallelBelZab();
             MainCanvas.task.plug(canvas_template);
             MainCanvas.task.initializer(cells_number, generations, cfrontier , alpha, beta, gamma);
             MainCanvas.setDimensions(cells_number, cells_number);
@@ -427,7 +427,7 @@ public class GuiBelZab extends Frame implements ActionListener, FocusListener {
         if(e.getSource()== gui_buttons.get(buttons_names[2])) {
             worker.cancel(true);
             worker.cancel(false);
-            CellularAutomata2D.stop();
+            parallelBelZab.stop();
         }
 
     }
