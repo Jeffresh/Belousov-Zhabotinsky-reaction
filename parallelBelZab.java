@@ -191,6 +191,14 @@ public class parallelBelZab implements Runnable {
         population = new LinkedList[states_number];
         initialPopulation = new int[states_number];
 
+        p = 0;
+        q = 1;
+
+        parallelBelZab.a = new float [width][height][2];
+        parallelBelZab.b = new float [width][height][2];
+        parallelBelZab.c = new float [width][height][2];
+        parallelBelZab.randomInitializer();
+
 
         for (int i = 0; i < states_number; i++) {
             population[i] = new LinkedList<Double>();
@@ -202,23 +210,13 @@ public class parallelBelZab implements Runnable {
         if(parallelBelZab.population_chart_ref != null)
             parallelBelZab.population_chart_ref.plot();
 
-        p = 0;
-        q = 1;
-
-        parallelBelZab.a = new float [width][height][2];
-        parallelBelZab.b = new float [width][height][2];
-        parallelBelZab.c = new float [width][height][2];
-        parallelBelZab.randomInitializer();
-
 
     }
 
     public static int getIndex() {
         return p;
     }
-
-
-
+    
     public static void changeRefs() {
         if( p == 0) {
             p = 1;
@@ -298,7 +296,7 @@ public class parallelBelZab implements Runnable {
                 addPopulation(b[x][y][q],1);
                 c[x][y][q] = transitionFunction(c_c, c_a, c_b, gamma, beta);
                 addPopulation(c[x][y][q],2);
-                
+
             }
         }
 
