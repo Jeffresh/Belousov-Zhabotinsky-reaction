@@ -48,7 +48,7 @@ public class parallelBelZab implements Runnable {
 
     private static int width, height;
 
-    public static int states_number = 2;
+    public static int states_number = 3;
     private static int cfrontier = 0;
     private static int cells_number;
     public static int generations;
@@ -293,9 +293,12 @@ public class parallelBelZab implements Runnable {
                 c_c = computeVonNeumannNeighborhood(x, y, c) / (float) 9.0;
 
                 a[x][y][q] = transitionFunction(c_a, c_b, c_c, alpha, gamma);
+                addPopulation(a[x][y][q],0);
                 b[x][y][q] = transitionFunction(c_b, c_c, c_a, beta, alpha);
+                addPopulation(b[x][y][q],1);
                 c[x][y][q] = transitionFunction(c_c, c_a, c_b, gamma, beta);
-
+                addPopulation(c[x][y][q],2);
+                
             }
         }
 
