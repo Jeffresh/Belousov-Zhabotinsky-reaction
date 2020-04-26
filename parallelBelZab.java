@@ -266,6 +266,12 @@ public class parallelBelZab implements Runnable {
         return value;
     }
 
+    public void addPopulation(float value, int index) {
+        if(value>0.5){
+            local_population_counter[index]++;
+        }
+    }
+
     public  LinkedList<Double>[] nextGen(int actual_gen) {
 
         local_population_counter = new int[states_number];
