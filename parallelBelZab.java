@@ -83,7 +83,6 @@ public class parallelBelZab implements Runnable {
 
                 l = barrier.await();
 
-
                 if(this.task_number==1) {
                     canvasTemplateRef.revalidate();
                     canvasTemplateRef.repaint();
@@ -103,8 +102,7 @@ public class parallelBelZab implements Runnable {
                     barrier.reset();
 
                 l = barrier.await();
-
-
+                
                 if(barrier.getParties() == 0)
                     barrier.reset();
             }catch(Exception e){}
@@ -213,13 +211,12 @@ public class parallelBelZab implements Runnable {
         if(parallelBelZab.population_chart_ref != null)
             parallelBelZab.population_chart_ref.plot();
 
-
     }
 
     public static int getIndex() {
         return p;
     }
-    
+
     public static void changeRefs() {
         if( p == 0) {
             p = 1;
@@ -229,7 +226,6 @@ public class parallelBelZab implements Runnable {
             p = 0;
             q = 1;
         }
-
     }
 
     public static void stop() {
