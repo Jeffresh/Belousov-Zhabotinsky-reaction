@@ -15,8 +15,7 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 
 
 
-public class parallelBelZab implements Runnable
-{
+public class parallelBelZab implements Runnable {
 
     private static int[] initialPopulation;
     public static AtomicIntegerArray population_counter;
@@ -37,9 +36,15 @@ public class parallelBelZab implements Runnable
     public static int p ,q;
 
 
-    public float[][][] getData() { return a; }
-    public void plug(MainCanvas ref) { canvasTemplateRef = ref; }
-    public void plugPopulationChart(AnalyticsMultiChart ref) { population_chart_ref = ref;}
+    public float[][][] getData() {
+        return a;
+    }
+    public void plug(MainCanvas ref) {
+        canvasTemplateRef = ref;
+    }
+    public void plugPopulationChart(AnalyticsMultiChart ref) {
+        population_chart_ref = ref;
+    }
 
     private static int width, height;
 
@@ -140,17 +145,16 @@ public class parallelBelZab implements Runnable
                 new LinkedBlockingQueue<Runnable>());
         parallelBelZab[] tareas = new parallelBelZab[nt];
 
-        for(int t = 0; t < nt; t++)
-        {
+        for(int t = 0; t < nt; t++) {
             tareas[t] = new parallelBelZab(t+1);
             myPool.execute(tareas[t]);
 
         }
 
         myPool.shutdown();
-        try{
+        try {
             myPool.awaitTermination(10, TimeUnit.HOURS);
-        } catch(Exception e){
+        } catch(Exception e) {
             System.out.println(e.toString());
         }
 
@@ -270,25 +274,25 @@ public class parallelBelZab implements Runnable
             this.local_population_counter[i]=0;
         }
 
-        for(int x = 0; x< width; x++)
+        for(int x = 0; x < width; x++) {
             for (int y = in; y < fn; y++) {
-                if(abort)
+                if (abort)
                     break;
                 c_a = 0;
                 c_b = 0;
                 c_c = 0;
 
-                c_a = computeVonNeumannNeighborhood(x, y, a)/(float)9.0;
-                c_b = computeVonNeumannNeighborhood(x, y, b)/(float)9.0;
-                c_c = computeVonNeumannNeighborhood(x, y, c)/(float)9.0;
+                c_a = computeVonNeumannNeighborhood(x, y, a) / (float) 9.0;
+                c_b = computeVonNeumannNeighborhood(x, y, b) / (float) 9.0;
+                c_c = computeVonNeumannNeighborhood(x, y, c) / (float) 9.0;
 
-                a[x][y][q] = transitionFunction(c_a, c_b, c_c, alpha, gamma );
-                b[x][y][q] = transitionFunction(c_b, c_c, c_a, beta, alpha );
-                c[x][y][q] = transitionFunction(c_c, c_a, c_b, gamma, beta );
+                a[x][y][q] = transitionFunction(c_a, c_b, c_c, alpha, gamma);
+                b[x][y][q] = transitionFunction(c_b, c_c, c_a, beta, alpha);
+                c[x][y][q] = transitionFunction(c_c, c_a, c_b, gamma, beta);
 
             }
+        }
 
         return population;
     }
-
 }
