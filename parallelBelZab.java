@@ -102,7 +102,7 @@ public class parallelBelZab implements Runnable {
                     barrier.reset();
 
                 l = barrier.await();
-                
+
                 if(barrier.getParties() == 0)
                     barrier.reset();
             }catch(Exception e){}
