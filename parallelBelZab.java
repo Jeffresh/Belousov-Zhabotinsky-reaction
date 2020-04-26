@@ -168,8 +168,11 @@ public class parallelBelZab implements Runnable {
         for(int x = 0 ; x < width; x++)
             for(int y = 0; y < height; y++) {
                 a[x ][ y ][ p] = (float)Math.random ();
+                initialPopulation[0]+= a[x ][ y ][ p]>0.5?1:0;
                 b[x ][ y ][ p] = (float)Math.random ();
+                initialPopulation[1]+= b[x ][ y ][ p]>0.5?1:0;
                 c[x ][ y ][ p] = (float)Math.random ();
+                initialPopulation[2]+= c[x ][ y ][ p]>0.5?1:0;
             }
     }
 
