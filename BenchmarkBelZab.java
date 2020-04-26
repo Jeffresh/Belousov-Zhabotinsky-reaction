@@ -171,9 +171,11 @@ public class BenchmarkBelZab implements Runnable
         generations = nGen;
 
         for (int i = 1; i <= taskNumber; i++) {
+            System.out.println("\n Start simulation "+i+ " tasks");
             Instant startTime = Instant.now();
             next_gen_concurrent(i,nGen);
             Instant end = Instant.now();
+            System.out.println("\n End simulation "+i+ "tasks");
             times.add(Duration.between(startTime,end).getSeconds());
         }
 
@@ -225,14 +227,14 @@ public class BenchmarkBelZab implements Runnable
 
     public static void main(String[] args) {
         BenchmarkBelZab simulation = new BenchmarkBelZab();
-        simulation.initializer(1000, 200, 0 , 1, 1, 1);
-        LinkedList<Long> times = caComputation(8,400);
-        System.out.print("Medidas de tiempo");
+        simulation.initializer(1000, 1000, 0 , 1, 1, 1);
+        LinkedList<Long> times = caComputation(8,1000);
+        System.out.print("Medidas de tiempo \n");
         for (Long time: times )
             System.out.println(time);
         long firstValue =0;
 
-        System.out.print("Medidas de Speed up");
+        System.out.print("Medidas de Speed up\n");
         for (int i = 0; i < times.size() ; i++) {
             if (i==0)
                 firstValue= times.get(i);
